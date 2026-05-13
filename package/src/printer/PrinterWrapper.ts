@@ -1,4 +1,5 @@
 import { Image } from 'react-native';
+import type { EmitterSubscription } from 'react-native';
 import {
   CommonOperationErrorMessageMapping,
   ConnectPrinterErrorMessageMapping,
@@ -34,12 +35,13 @@ import {
   throwProcessedError,
 } from './utils';
 
-import { EscPosPrinter } from '../specs';
+import { EscPosPrinter, addScanDataListener } from '../specs';
 
 export class PrinterWrapper {
   private target: string;
   private printerPaperWidth: number = null;
   public currentFontWidth: number = 1;
+  private scanDataSubscription?: EmitterSubscription;
 
   constructor(target: string) {
     this.target = target;
@@ -418,5 +420,77 @@ export class PrinterWrapper {
         messagesMapping: CommonOperationErrorMessageMapping,
       });
     }
+  };
+
+  /* ------------------------------------------------------------------
+   * Barcode Scanner
+   * -----------------------------------------------------------------*/
+
+  /**
+   * Initialise Epson barcode scanner for this target.
+   * Must be called once before connectScanner / onScanData.
+   */
+  initScanner = async () => {
+    try {
+      await EscPosPrinter.initBarcodeScanner(this.target);
+    } catch (error) {
+      throwProcessedError({
+        methodName: 'initScanner',
+        errorCode: error.message,
+        messagesMapping: CommonOperationErrorMessageMapping,
+      });
+    }
+  };
+
+  /**
+   * Connect scanner. Timeout defaults to 15 s (same as printer).
+   */
+  connectScanner = async (timeout: number = 15000) => {
+    try {
+      await EscPosPrinter.connectBarcodeScanner(timeout);
+    } catch (error) {
+      throwProcessedError({
+        methodName: 'connectScanner',
+        errorCode: error.message,
+        messagesMapping: CommonOperationErrorMessageMapping,
+      });
+    }
+  };
+
+  /**
+   * Disconnect scanner and remove any active listener.
+   */
+  disconnectScanner = async () => {
+    try {
+      await EscPosPrinter.disconnectBarcodeScanner();
+    } catch (error) {
+      throwProcessedError({
+        methodName: 'disconnectScanner',
+        errorCode: error.message,
+        messagesMapping: CommonOperationErrorMessageMapping,
+      });
+    } finally {
+      this.removeScanListener();
+    }
+  };
+
+  /**
+   * Subscribe to scan-data events.
+   * Calling twice will replace the previous handler.
+   */
+  onScanData = (handler: (data: string) => void) => {
+    // clear previous
+    this.scanDataSubscription?.remove();
+    this.scanDataSubscription = addScanDataListener(
+      (event: { data: string }) => handler(event.data)
+    );
+  };
+
+  /**
+   * Manually remove the scan-data listener (also invoked by disconnectScanner).
+   */
+  removeScanListener = () => {
+    this.scanDataSubscription?.remove();
+    this.scanDataSubscription = undefined;
   };
 }

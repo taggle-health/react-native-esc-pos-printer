@@ -155,4 +155,26 @@ export class Printer {
   clearCommandBuffer = () => {
     return this.printerWrapper.clearCommandBuffer();
   };
+
+  // Barcode scanner
+
+  onScanData = (callback: (data: string) => void) => {
+    return this.printerWrapper.onScanData(callback);
+  };
+
+  initScanner = () => {
+    return this.printerWrapper.initScanner();
+  };
+
+  connectScanner = (timeout?: number) => {
+    return this.printerWrapper.connectScanner(timeout);
+  };
+
+  disconnectScanner = () => {
+    return this.printerWrapper.disconnectScanner();
+  };
+
+  removeScanListener = () => {
+    return this.printerWrapper.removeScanListener();
+  };
 }

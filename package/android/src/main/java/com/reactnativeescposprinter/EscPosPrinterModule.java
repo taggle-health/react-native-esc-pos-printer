@@ -418,6 +418,22 @@ public class EscPosPrinterModule extends NativeEscPosPrinterSpec {
         }).start();
     }
 
+    // Barcode scanner stubs (iOS-only feature)
+    @ReactMethod
+    public void initBarcodeScanner(String target, Promise promise) {
+      promise.reject("event_failure", "Barcode scanner is not supported on Android");
+    }
+
+    @ReactMethod
+    public void connectBarcodeScanner(double timeout, Promise promise) {
+      promise.reject("event_failure", "Barcode scanner is not supported on Android");
+    }
+
+    @ReactMethod
+    public void disconnectBarcodeScanner(Promise promise) {
+      promise.reject("event_failure", "Barcode scanner is not supported on Android");
+    }
+
     private void  processError(Promise promise, Exception e, String errorType) {
       int errorCode;
       if (e instanceof Epos2Exception) {

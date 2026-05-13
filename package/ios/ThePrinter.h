@@ -1,5 +1,6 @@
 #ifndef ThePrinter_h
 #define ThePrinter_h
+
 #import "ePOS2.h"
 
 
