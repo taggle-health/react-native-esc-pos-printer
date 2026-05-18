@@ -284,6 +284,20 @@ export interface Spec extends TurboModule {
   initBarcodeScanner(target: string): Promise<void>;
   connectBarcodeScanner(timeout: number): Promise<void>;
   disconnectBarcodeScanner(): Promise<void>;
+
+  // Force reset / recover
+  forceReset(target: string, timeout: number): Promise<void>;
+  forceRecover(target: string, timeout: number): Promise<void>;
+
+  // Render text as image at arbitrary font size
+  addRenderedText(
+    target: string,
+    text: string,
+    fontSize: number,
+    bold: boolean,
+    align: number,
+    paperWidth: number
+  ): Promise<void>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('EscPosPrinter');

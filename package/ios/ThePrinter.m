@@ -518,6 +518,30 @@
     }
 }
 
+-(int) forceReset:(long)timeout;
+{
+    @synchronized (self) {
+        if (epos2Printer_ == nil) {
+            return EPOS2_ERR_MEMORY;
+        }
+
+        int result = [epos2Printer_ forceReset: timeout];
+        return result;
+    }
+}
+
+-(int) forceRecover:(long)timeout;
+{
+    @synchronized (self) {
+        if (epos2Printer_ == nil) {
+            return EPOS2_ERR_MEMORY;
+        }
+
+        int result = [epos2Printer_ forceRecover: timeout];
+        return result;
+    }
+}
+
 #pragma mark - Epos2PtrReceiveDelegate
 - (void) onPtrReceive:(Epos2Printer *)printerObj code:(int)code status:(Epos2PrinterStatusInfo *)status printJobId:(NSString *)printJobId
 {

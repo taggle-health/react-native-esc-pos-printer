@@ -1,3 +1,4 @@
+// @ts-ignore
 import type PQueueType from 'p-queue';
 import { PrinterWrapper } from './PrinterWrapper';
 import { PrinterGetSettingsType, PrinterModelLang } from './constants';
@@ -10,6 +11,7 @@ import {
 import type {
   AddBarcodeParams,
   AddCutTypeParam,
+  AddFontStyleParams,
   AddImageParams,
   AddPulseParams,
   AddSymbolParams,
@@ -154,6 +156,62 @@ export class Printer {
 
   clearCommandBuffer = () => {
     return this.printerWrapper.clearCommandBuffer();
+  };
+
+  // Force reset / recover
+
+  /**
+   * Forcefully re-initializes the printer hardware (ESC @).
+   * This is a "nuclear option" that wipes the printer's internal RAM, deletes unprinted data,
+   * and resets all formatting to factory defaults. Use when the printer is stuck in an unrecoverable state.
+   */
+  forceReset = (timeout?: number) => {
+    return this.printerWrapper.forceReset(timeout);
+  };
+
+  /**
+   * Gracefully attempts to recover from a physical printer error (e.g. cover open, out of paper).
+   * It clears the error flags and safely resumes printing without dropping the connection
+   * or losing the current print queue.
+   */
+  forceRecover = (timeout?: number) => {
+    return this.printerWrapper.forceRecover(timeout);
+  };
+
+  // Font style convenience
+
+  /**
+   * Sets the active font size and boldness for custom typography rendering.
+   * This state will be applied to all subsequent `addStyledText` calls.
+   * @param params - Contains `fontSize` (in dots) and `bold` flag.
+   */
+  addFontStyle = (params?: AddFontStyleParams) => {
+    return this.printerWrapper.addFontStyle(params);
+  };
+
+  /**
+   * Draws arbitrary-sized text onto an image buffer using Apple Core Text (iOS) or Android Canvas,
+   * and sends the resulting high-fidelity image block to the printer. 
+   * This perfectly bypasses ESC/POS hardware font limitations.
+   * 
+   * NOTE: Combine multiple lines of the same style into a single string with `\n` to prevent 
+   * the printer hardware from injecting massive gap spaces between lines!
+   */
+  addStyledText = (text: string) => {
+    return this.printerWrapper.addStyledText(text);
+  };
+
+  /**
+   * Sets the printer paper width in dots.
+   * This is required for the `addStyledText` rendering engine to know where to
+   * wrap long sentences.
+   * 
+   * Standard widths:
+   * - 80mm printers: 576 dots (Default)
+   * - 58mm printers: 384 dots
+   */
+  setPaperWidth = (width: number) => {
+    this.printerWrapper.setPaperWidth(width);
   };
 
   // Barcode scanner

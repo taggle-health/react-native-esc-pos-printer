@@ -147,6 +147,10 @@
  */
 -(int) endTransaction;
 
+-(int) forceReset:(long)timeout;
+
+-(int) forceRecover:(long)timeout;
+
 @end
 
 #endif /* ThePrinter_h */

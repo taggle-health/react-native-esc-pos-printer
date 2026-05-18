@@ -434,6 +434,22 @@ public class EscPosPrinterModule extends NativeEscPosPrinterSpec {
       promise.reject("event_failure", "Barcode scanner is not supported on Android");
     }
 
+    // Force reset / recover stubs (iOS-only)
+    @ReactMethod
+    public void forceReset(String target, double timeout, Promise promise) {
+      promise.reject("event_failure", "forceReset is not yet implemented on Android");
+    }
+
+    @ReactMethod
+    public void forceRecover(String target, double timeout, Promise promise) {
+      promise.reject("event_failure", "forceRecover is not yet implemented on Android");
+    }
+
+    @ReactMethod
+    public void addRenderedText(String target, String text, double fontSize, boolean bold, double align, double paperWidth, Promise promise) {
+      promise.reject("event_failure", "addRenderedText is not yet implemented on Android");
+    }
+
     private void  processError(Promise promise, Exception e, String errorType) {
       int errorCode;
       if (e instanceof Epos2Exception) {

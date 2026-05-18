@@ -547,6 +547,141 @@ RCT_EXPORT_METHOD(getPrinterSetting:(nonnull NSString*) target
 }
 
 
+
+#pragma mark - Rendered text (text as image for arbitrary font size)
+
+RCT_EXPORT_METHOD(addRenderedText: (nonnull NSString*) target
+                  text: (NSString*) text
+                  fontSize: (double) fontSize
+                  bold: (BOOL) bold
+                  align: (double) align
+                  paperWidth: (double) paperWidth
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+{
+    @synchronized (self) {
+        ThePrinter* thePrinter = [objManager_ getObject:target];
+        if (thePrinter == nil) {
+            reject(@"event_failure", [@([EposStringHelper getInitErrorResultCode]) stringValue], nil);
+            return;
+        }
+
+        // Build font
+        UIFont *font;
+        if (bold) {
+            font = [UIFont boldSystemFontOfSize:(CGFloat)fontSize];
+        } else {
+            font = [UIFont systemFontOfSize:(CGFloat)fontSize];
+        }
+
+        // Set up paragraph style for alignment
+        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+        if ((int)align == EPOS2_ALIGN_CENTER) {
+            paragraphStyle.alignment = NSTextAlignmentCenter;
+        } else if ((int)align == EPOS2_ALIGN_RIGHT) {
+            paragraphStyle.alignment = NSTextAlignmentRight;
+        } else {
+            paragraphStyle.alignment = NSTextAlignmentLeft;
+        }
+
+        NSDictionary *attributes = @{
+            NSFontAttributeName: font,
+            NSForegroundColorAttributeName: [UIColor blackColor],
+            NSParagraphStyleAttributeName: paragraphStyle,
+        };
+
+        // Calculate text size within paper width
+        CGFloat maxWidth = (CGFloat)paperWidth;
+        CGRect textRect = [text boundingRectWithSize:CGSizeMake(maxWidth, CGFLOAT_MAX)
+                                             options:NSStringDrawingUsesLineFragmentOrigin
+                                          attributes:attributes
+                                             context:nil];
+        CGSize imageSize = CGSizeMake(maxWidth, ceil(textRect.size.height));
+
+        // Render text to image
+        UIGraphicsBeginImageContextWithOptions(imageSize, NO, 1.0);
+        [[UIColor whiteColor] setFill];
+        UIRectFill(CGRectMake(0, 0, imageSize.width, imageSize.height));
+        [text drawInRect:CGRectMake(0, 0, imageSize.width, imageSize.height)
+          withAttributes:attributes];
+        UIImage *textImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+
+        if (textImage == nil) {
+            reject(@"event_failure", [@(EPOS2_ERR_FAILURE) stringValue], nil);
+            return;
+        }
+
+        // Add image to printer command buffer
+        Epos2Printer* printer = [thePrinter getEpos2Printer];
+        int result = [printer addImage:textImage
+                                     x:0
+                                     y:0
+                                 width:(long)imageSize.width
+                                height:(long)imageSize.height
+                                 color:EPOS2_COLOR_1
+                                  mode:EPOS2_MODE_MONO
+                              halftone:EPOS2_HALFTONE_DITHER
+                            brightness:1.0
+                              compress:EPOS2_COMPRESS_AUTO];
+
+        if (result == EPOS2_SUCCESS) {
+            resolve(nil);
+        } else {
+            reject(@"event_failure", [@(result) stringValue], nil);
+        }
+    }
+}
+
+#pragma mark - Force reset / recover
+
+RCT_EXPORT_METHOD(forceReset: (nonnull NSString*) target
+                  timeout: (double)timeout
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @synchronized (self) {
+            ThePrinter* thePrinter = [objManager_ getObject:target];
+            if (thePrinter == nil) {
+                reject(@"event_failure", [@([EposStringHelper getInitErrorResultCode]) stringValue], nil);
+                return;
+            }
+
+            int result = [thePrinter forceReset:(long)timeout];
+            if(result == EPOS2_SUCCESS) {
+                resolve(nil);
+            } else {
+                reject(@"event_failure", [@(result) stringValue], nil);
+            }
+        }
+    });
+}
+
+RCT_EXPORT_METHOD(forceRecover: (nonnull NSString*) target
+                  timeout: (double)timeout
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @synchronized (self) {
+            ThePrinter* thePrinter = [objManager_ getObject:target];
+            if (thePrinter == nil) {
+                reject(@"event_failure", [@([EposStringHelper getInitErrorResultCode]) stringValue], nil);
+                return;
+            }
+
+            int result = [thePrinter forceRecover:(long)timeout];
+            if(result == EPOS2_SUCCESS) {
+                resolve(nil);
+            } else {
+                reject(@"event_failure", [@(result) stringValue], nil);
+            }
+        }
+    });
+}
+
+
 #pragma mark - Barcode scanner API
 
 RCT_EXPORT_METHOD(initBarcodeScanner:(NSString *)target
