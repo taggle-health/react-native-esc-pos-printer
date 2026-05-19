@@ -508,7 +508,7 @@ export class PrinterWrapper {
   addStyledText = async (text: string) => {
     const fontSize = this.fontStyleState?.fontSize || 24;
     const bold = this.fontStyleState?.bold || false;
-    const fontFamily = this.fontStyleState?.fontFamily || 'FakeReceipt';
+    const fontFamily = this.fontStyleState?.fontFamily || 'AnonymousPro-Regular';
 
     try {
       await EscPosPrinter.addRenderedText(
