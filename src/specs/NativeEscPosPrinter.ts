@@ -295,6 +295,7 @@ export interface Spec extends TurboModule {
     text: string,
     fontSize: number,
     bold: boolean,
+    fontFamily: string,
     align: number,
     paperWidth: number
   ): Promise<void>;

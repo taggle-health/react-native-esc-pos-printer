@@ -155,4 +155,5 @@ export type AddFontStyleParams = {
   /** Font size in dots. Base size is 24. E.g. 24=normal, 36=1.5x, 48=2x, 72=3x */
   fontSize?: number;
   bold?: boolean;
+  fontFamily?: string;
 };

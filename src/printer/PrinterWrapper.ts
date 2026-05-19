@@ -477,7 +477,7 @@ export class PrinterWrapper {
 
   /** Paper width in dots. 80mm paper = 576 dots, 58mm paper = 384 dots */
   private paperWidth: number = 576;
-  private fontStyleState: { fontSize: number; bold: boolean } | null = null;
+  private fontStyleState: { fontSize: number; bold: boolean; fontFamily?: string } | null = null;
 
   /**
    * Set the paper width (needed for text-as-image rendering).
@@ -496,8 +496,9 @@ export class PrinterWrapper {
   addFontStyle = async ({
     fontSize = 24,
     bold = false,
+    fontFamily,
   }: AddFontStyleParams = {}) => {
-    this.fontStyleState = { fontSize, bold };
+    this.fontStyleState = { fontSize, bold, fontFamily };
   };
 
   /**
@@ -505,10 +506,9 @@ export class PrinterWrapper {
    * value, the text is rendered as an image for true intermediate sizing.
    */
   addStyledText = async (text: string) => {
-    const { fontSize, bold } = this.fontStyleState ?? {
-      fontSize: 24,
-      bold: false,
-    };
+    const fontSize = this.fontStyleState?.fontSize || 24;
+    const bold = this.fontStyleState?.bold || false;
+    const fontFamily = this.fontStyleState?.fontFamily || 'FakeReceipt';
 
     try {
       await EscPosPrinter.addRenderedText(
@@ -516,6 +516,7 @@ export class PrinterWrapper {
         text,
         fontSize,
         bold,
+        fontFamily,
         this.currentAlign ?? PrinterConstants.ALIGN_LEFT,
         this.paperWidth
       );

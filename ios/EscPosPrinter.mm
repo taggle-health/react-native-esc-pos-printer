@@ -554,6 +554,7 @@ RCT_EXPORT_METHOD(addRenderedText: (nonnull NSString*) target
                   text: (NSString*) text
                   fontSize: (double) fontSize
                   bold: (BOOL) bold
+                  fontFamily: (NSString*) fontFamily
                   align: (double) align
                   paperWidth: (double) paperWidth
                   resolve:(RCTPromiseResolveBlock)resolve
@@ -568,10 +569,24 @@ RCT_EXPORT_METHOD(addRenderedText: (nonnull NSString*) target
 
         // Build font
         UIFont *font;
-        if (bold) {
-            font = [UIFont boldSystemFontOfSize:(CGFloat)fontSize];
+        if (fontFamily != nil && [fontFamily length] > 0) {
+            UIFont *customFont = [UIFont fontWithName:fontFamily size:(CGFloat)fontSize];
+            if (customFont) {
+                if (bold) {
+                    UIFontDescriptor *descriptor = [customFont.fontDescriptor fontDescriptorWithSymbolicTraits:UIFontDescriptorTraitBold];
+                    if (descriptor) {
+                        font = [UIFont fontWithDescriptor:descriptor size:(CGFloat)fontSize];
+                    } else {
+                        font = customFont;
+                    }
+                } else {
+                    font = customFont;
+                }
+            } else {
+                font = bold ? [UIFont boldSystemFontOfSize:(CGFloat)fontSize] : [UIFont systemFontOfSize:(CGFloat)fontSize];
+            }
         } else {
-            font = [UIFont systemFontOfSize:(CGFloat)fontSize];
+            font = bold ? [UIFont boldSystemFontOfSize:(CGFloat)fontSize] : [UIFont systemFontOfSize:(CGFloat)fontSize];
         }
 
         // Set up paragraph style for alignment

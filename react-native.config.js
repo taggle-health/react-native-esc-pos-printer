@@ -8,5 +8,6 @@ module.exports = {
         cmakeListsPath: 'generated/jni/CMakeLists.txt',
       },
     },
+    assets: ['./assets/fonts/'],
   },
 };

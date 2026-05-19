@@ -446,7 +446,7 @@ public class EscPosPrinterModule extends NativeEscPosPrinterSpec {
     }
 
     @ReactMethod
-    public void addRenderedText(String target, String text, double fontSize, boolean bold, double align, double paperWidth, Promise promise) {
+    public void addRenderedText(String target, String text, double fontSize, boolean bold, String fontFamily, double align, double paperWidth, Promise promise) {
       promise.reject("event_failure", "addRenderedText is not yet implemented on Android");
     }
 

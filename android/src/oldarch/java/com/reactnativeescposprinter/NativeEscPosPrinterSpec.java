@@ -360,4 +360,28 @@ public abstract class NativeEscPosPrinterSpec extends ReactContextBaseJavaModule
   @ReactMethod
   @DoNotStrip
   public abstract void addTextStyle(String target, double reverse, double ul, double em, double color, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void addRenderedText(String target, String text, double fontSize, boolean bold, String fontFamily, double align, double paperWidth, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void initBarcodeScanner(String target, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void connectBarcodeScanner(double timeout, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void disconnectBarcodeScanner(Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void forceReset(String target, double timeout, Promise promise);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void forceRecover(String target, double timeout, Promise promise);
 }
