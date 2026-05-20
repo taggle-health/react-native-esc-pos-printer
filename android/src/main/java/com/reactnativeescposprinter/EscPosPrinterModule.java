@@ -284,6 +284,21 @@ public class EscPosPrinterModule extends NativeEscPosPrinterSpec {
     }
 
     @ReactMethod
+    synchronized public void addTextFont(String target, double font, Promise promise) {
+      ThePrinter thePrinter = thePrinterManager_.getObject(target);
+      if (thePrinter == null) {
+        promise.reject(EposStringHelper.getErrorTextData(ERR_INIT, ""));
+      } else {
+        try {
+          thePrinter.addTextFont((int) font);
+          promise.resolve(null);
+        } catch(Exception e) {
+          processError(promise, e, "");
+        }
+      }
+    }
+
+    @ReactMethod
     synchronized public void addTextStyle(String target, double reverse, double ul, double em, double color, Promise promise) {
       ThePrinter thePrinter = thePrinterManager_.getObject(target);
       if (thePrinter == null) {
@@ -443,11 +458,6 @@ public class EscPosPrinterModule extends NativeEscPosPrinterSpec {
     @ReactMethod
     public void forceRecover(String target, double timeout, Promise promise) {
       promise.reject("event_failure", "forceRecover is not yet implemented on Android");
-    }
-
-    @ReactMethod
-    public void addRenderedText(String target, String text, double fontSize, boolean bold, String fontFamily, double align, double paperWidth, Promise promise) {
-      promise.reject("event_failure", "addRenderedText is not yet implemented on Android");
     }
 
     private void  processError(Promise promise, Exception e, String errorType) {

@@ -11,7 +11,6 @@ import {
 import type {
   AddBarcodeParams,
   AddCutTypeParam,
-  AddFontStyleParams,
   AddImageParams,
   AddPulseParams,
   AddSymbolParams,
@@ -178,40 +177,12 @@ export class Printer {
     return this.printerWrapper.forceRecover(timeout);
   };
 
-  // Font style convenience
-
   /**
-   * Sets the active font size and boldness for custom typography rendering.
-   * This state will be applied to all subsequent `addStyledText` calls.
-   * @param params - Contains `fontSize` (in dots) and `bold` flag.
+   * Switch the printer's built-in hardware font (ESC M).
+   * @param font - PrinterConstants.FONT_A, FONT_B, FONT_C, FONT_D, or FONT_E
    */
-  addFontStyle = (params?: AddFontStyleParams) => {
-    return this.printerWrapper.addFontStyle(params);
-  };
-
-  /**
-   * Draws arbitrary-sized text onto an image buffer using Apple Core Text (iOS) or Android Canvas,
-   * and sends the resulting high-fidelity image block to the printer. 
-   * This perfectly bypasses ESC/POS hardware font limitations.
-   * 
-   * NOTE: Combine multiple lines of the same style into a single string with `\n` to prevent 
-   * the printer hardware from injecting massive gap spaces between lines!
-   */
-  addStyledText = (text: string) => {
-    return this.printerWrapper.addStyledText(text);
-  };
-
-  /**
-   * Sets the printer paper width in dots.
-   * This is required for the `addStyledText` rendering engine to know where to
-   * wrap long sentences.
-   * 
-   * Standard widths:
-   * - 80mm printers: 576 dots (Default)
-   * - 58mm printers: 384 dots
-   */
-  setPaperWidth = (width: number) => {
-    this.printerWrapper.setPaperWidth(width);
+  addTextFont = (font?: number) => {
+    return this.printerWrapper.addTextFont(font);
   };
 
   // Barcode scanner

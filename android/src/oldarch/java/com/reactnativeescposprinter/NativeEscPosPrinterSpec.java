@@ -363,7 +363,7 @@ public abstract class NativeEscPosPrinterSpec extends ReactContextBaseJavaModule
 
   @ReactMethod
   @DoNotStrip
-  public abstract void addRenderedText(String target, String text, double fontSize, boolean bold, String fontFamily, double align, double paperWidth, Promise promise);
+  public abstract void addTextFont(String target, double font, Promise promise);
 
   @ReactMethod
   @DoNotStrip

@@ -151,6 +151,8 @@
 
 -(int) forceRecover:(long)timeout;
 
+-(int) addTextFont:(int)font;
+
 @end
 
 #endif /* ThePrinter_h */

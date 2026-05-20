@@ -293,6 +293,12 @@ public class ThePrinter implements PrinterSettingListener, ReceiveListener {
       epos2Printer_.addTextSmooth(smooth);
     }
 
+    synchronized public void addTextFont(int font) throws Epos2Exception {
+      if (epos2Printer_ == null) throw new Epos2Exception(Epos2Exception.ERR_MEMORY);
+
+      epos2Printer_.addTextFont(font);
+    }
+
     synchronized public void addTextStyle(int reverse, int ul, int em, int color) throws Epos2Exception {
       if (epos2Printer_ == null) throw new Epos2Exception(Epos2Exception.ERR_MEMORY);
 

@@ -542,6 +542,18 @@
     }
 }
 
+-(int) addTextFont:(int)font;
+{
+    @synchronized (self) {
+        if (epos2Printer_ == nil) {
+            return EPOS2_ERR_MEMORY;
+        }
+
+        int result = [epos2Printer_ addTextFont: font];
+        return result;
+    }
+}
+
 #pragma mark - Epos2PtrReceiveDelegate
 - (void) onPtrReceive:(Epos2Printer *)printerObj code:(int)code status:(Epos2PrinterStatusInfo *)status printJobId:(NSString *)printJobId
 {

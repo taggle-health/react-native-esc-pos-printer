@@ -279,6 +279,7 @@ export interface Spec extends TurboModule {
     em: number,
     color: number
   ): Promise<void>;
+  addTextFont(target: string, font: number): Promise<void>;
 
   // Barcode scanner
   initBarcodeScanner(target: string): Promise<void>;
@@ -288,17 +289,6 @@ export interface Spec extends TurboModule {
   // Force reset / recover
   forceReset(target: string, timeout: number): Promise<void>;
   forceRecover(target: string, timeout: number): Promise<void>;
-
-  // Render text as image at arbitrary font size
-  addRenderedText(
-    target: string,
-    text: string,
-    fontSize: number,
-    bold: boolean,
-    fontFamily: string,
-    align: number,
-    paperWidth: number
-  ): Promise<void>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('EscPosPrinter');

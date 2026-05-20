@@ -15,7 +15,6 @@ import {
 import type {
   AddBarcodeParams,
   AddCutTypeParam,
-  AddFontStyleParams,
   AddImageParams,
   AddPulseParams,
   AddSymbolParams,
@@ -42,7 +41,6 @@ export class PrinterWrapper {
   private target: string;
   private printerPaperWidth: number = null;
   public currentFontWidth: number = 1;
-  private currentAlign: number = 0;
   private scanDataSubscription?: EmitterSubscription;
 
   constructor(target: string) {
@@ -57,7 +55,6 @@ export class PrinterWrapper {
         lang
       );
       this.currentFontWidth = 1;
-      this.currentAlign = 0;
     } catch (error) {
       throwProcessedError({
         methodName: 'init',
@@ -135,17 +132,6 @@ export class PrinterWrapper {
 
   addFeedLine = async (line: number = 1) => {
     try {
-      if (this.fontStyleState) {
-        // Generate exactly n lines of empty text to force the rendering engine
-        // to create a gap exactly matching the custom font size multiplier.
-        let spaceBlock = ' ';
-        for (let i = 1; i < line; i++) {
-          spaceBlock += '\n ';
-        }
-        await this.addStyledText(spaceBlock);
-        return;
-      }
-
       await EscPosPrinter.addFeedLine(this.target, line);
     } catch (error) {
       throwProcessedError({
@@ -379,7 +365,6 @@ export class PrinterWrapper {
   ) => {
     try {
       await EscPosPrinter.addTextAlign(this.target, align);
-      this.currentAlign = align;
     } catch (error) {
       throwProcessedError({
         methodName: 'addTextAlign',
@@ -471,58 +456,12 @@ export class PrinterWrapper {
     }
   };
 
-  /* ------------------------------------------------------------------
-   * Font Style Convenience
-   * -----------------------------------------------------------------*/
-
-  /** Paper width in dots. 80mm paper = 576 dots, 58mm paper = 384 dots */
-  private paperWidth: number = 576;
-  private fontStyleState: { fontSize: number; bold: boolean; fontFamily?: string } | null = null;
-
-  /**
-   * Set the paper width (needed for text-as-image rendering).
-   * @param width - paper width in dots (576 for 80mm, 384 for 58mm)
-   */
-  setPaperWidth = (width: number) => {
-    this.paperWidth = width;
-  };
-
-  /**
-   * Set font size and style. Uses native text for exact multipliers (24, 48, 72...),
-   * renders text as image for any other size (e.g. 32, 36, 40...).
-   * @param fontSize - size in points/dots (24 = base size)
-   * @param bold     - whether to enable emphasis
-   */
-  addFontStyle = async ({
-    fontSize = 24,
-    bold = false,
-    fontFamily,
-  }: AddFontStyleParams = {}) => {
-    this.fontStyleState = { fontSize, bold, fontFamily };
-  };
-
-  /**
-   * Add text using the current font style. If fontSize is a non-standard
-   * value, the text is rendered as an image for true intermediate sizing.
-   */
-  addStyledText = async (text: string) => {
-    const fontSize = this.fontStyleState?.fontSize || 24;
-    const bold = this.fontStyleState?.bold || false;
-    const fontFamily = this.fontStyleState?.fontFamily || 'Iosevka-Regular';
-
+  addTextFont = async (font: number = PrinterConstants.FONT_A) => {
     try {
-      await EscPosPrinter.addRenderedText(
-        this.target,
-        text,
-        fontSize,
-        bold,
-        fontFamily,
-        this.currentAlign ?? PrinterConstants.ALIGN_LEFT,
-        this.paperWidth
-      );
+      await EscPosPrinter.addTextFont(this.target, font);
     } catch (error) {
       throwProcessedError({
-        methodName: 'addStyledText',
+        methodName: 'addTextFont',
         errorCode: error.message,
         messagesMapping: CommonOperationErrorMessageMapping,
       });
